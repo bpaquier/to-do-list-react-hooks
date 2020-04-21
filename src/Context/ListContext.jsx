@@ -2,65 +2,56 @@ import React, { createContext, useState, useEffect } from 'react';
 
 export const ListContext = createContext({});
 
-/* localStorage.setItem('todoList', JSON.stringify([]));
-localStorage.setItem('doneList', JSON.stringify([])); */
-
 export const ListContextProvider = (props) => {
-  const [toDoList, toDoListChange] = useState(
-    localStorage.getItem('todoList')
-      ? JSON.parse(localStorage.getItem('todoList'))
-      : []
-  );
+  const [list, setList] = useState([]);
+  const [error, setError] = useState(null);
 
-  const [doneList, doneListChange] = useState(
-    localStorage.getItem('doneList')
-      ? JSON.parse(localStorage.getItem('doneList'))
-      : []
-  );
+  useEffect(() => {
+    if (localStorage.getItem('list')) {
+      setList(JSON.parse(localStorage.getItem('list')) || []);
+    }
+  }, []);
 
-  const addTasktoToDoList = (task) => {
-    toDoListChange([task, ...toDoList]);
-    localStorage.setItem('todoList', JSON.stringify(toDoList));
+  useEffect(() => {
+    localStorage.setItem('list', JSON.stringify(list));
+    setError(null);
+  }, [list]);
+
+  const addTasktoToDoList = (value) => {
+    const existingElement = list.find((el) => el.value === value);
+    if (!existingElement) {
+      const task = { value: value, isDone: false };
+      setList([task, ...list]);
+    } else {
+      setError('Task already exist');
+    }
   };
 
-  const taskIsDone = (index) => {
-    const taksToDo = [...toDoList];
-    taksToDo.splice(index, 1);
-    toDoListChange(taksToDo);
-    localStorage.setItem('todoList', JSON.stringify(toDoList));
-
-    doneListChange([...doneList, toDoList[index]]);
-    localStorage.setItem('doneList', JSON.stringify(doneList));
+  const completeTask = (value) => {
+    const listBis = [...list];
+    const index = listBis.findIndex((el) => el.value === value);
+    listBis[index].isDone = true;
+    setList(listBis);
   };
 
-  const deleteTask = (index) => {
-    const tasksDone = [...doneList];
-    tasksDone.splice(index, 1);
-    doneListChange(tasksDone);
-    localStorage.setItem('doneList', JSON.stringify(doneList));
+  const deleteTask = (value) => {
+    const listBis = [...list];
+    const index = listBis.findIndex((el) => el.value === value);
+    listBis.splice(index, 1);
+    setList(listBis);
   };
 
   const resetLists = () => {
-    toDoListChange([]);
-    doneListChange([]);
-    localStorage.setItem('todoList', JSON.stringify(toDoList));
-    localStorage.setItem('doneList', JSON.stringify(doneList));
+    setList([]);
   };
 
-  useEffect(() => {
-    localStorage.setItem('todoList', JSON.stringify(toDoList));
-    localStorage.setItem('doneList', JSON.stringify(doneList));
-    console.log(JSON.parse(localStorage.getItem('todoList')));
-    console.log(JSON.parse(localStorage.getItem('doneList')));
-  });
-
   const value = {
-    toDoList: toDoList,
-    doneList: doneList,
-    addTasktoToDoList: addTasktoToDoList,
-    taskIsDone: taskIsDone,
-    deleteTask: deleteTask,
-    resetLists: resetLists,
+    list,
+    addTasktoToDoList,
+    completeTask,
+    deleteTask,
+    resetLists,
+    error,
   };
 
   return (

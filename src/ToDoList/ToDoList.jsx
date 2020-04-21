@@ -3,18 +3,24 @@ import { ListContext } from './../Context/ListContext';
 import Button from './../Button/ButtonComponent';
 
 export default () => {
-  const list = useContext(ListContext);
+  const { list, completeTask, error } = useContext(ListContext);
+
+  //console.log(list);
+
+  const filteredList = list.filter((item) => !item.isDone);
 
   return (
     <div className='to-do-list list'>
       <h2>To do</h2>
       <ul>
-        {list.toDoList.map((el, i) => (
-          <li key={i}>
-            {el} <Button click={() => list.taskIsDone(i)} content={'done'} />
+        {filteredList.map((el) => (
+          <li key={el.value}>
+            {el.value}
+            <Button click={() => completeTask(el.value)} content={'done'} />
           </li>
         ))}
       </ul>
+      {error && <div>{error}</div>}
     </div>
   );
 };
