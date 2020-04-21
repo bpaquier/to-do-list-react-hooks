@@ -2,6 +2,9 @@ import React, { createContext, useState, useEffect } from 'react';
 
 export const ListContext = createContext({});
 
+localStorage.setItem('todoList', JSON.stringify([]));
+localStorage.setItem('doneList', JSON.stringify([]));
+
 export const ListContextProvider = (props) => {
   const [toDoList, toDoListChange] = useState(
     JSON.parse(localStorage.getItem('todoList'))
